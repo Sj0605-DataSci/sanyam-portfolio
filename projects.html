@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>projects — sanyam jain</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<nav>
+  <div class="inner">
+    <a href="/" class="logo">sanyam jain</a>
+    <ul>
+      <li><a href="journey.html">journey</a></li>
+      <li><a href="projects.html" class="active">projects</a></li>
+      <li><a href="blogs.html">writing</a></li>
+      <li><a href="life.html">life</a></li>
+    </ul>
+    <div class="mode-toggle">
+      <a href="/" class="active">human</a>
+      <a href="agent.html">agent</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page">
+  <main class="page-content">
+    <div class="container">
+
+      <div class="page-header">
+        <h1>projects</h1>
+        <p>independent things i've built outside of work.</p>
+      </div>
+
+      <div class="projects-grid">
+
+        <div class="project-card">
+          <div class="project-header">
+            <span class="project-name">agent nexus search — tara</span>
+            <span class="project-arrow">↗</span>
+          </div>
+          <p class="project-desc">
+            ai copilot for tallyprime. talk to your tally accounting data in natural language via whatsapp,
+            web, or voice. touchless document automation — photos and pdfs become tally entries via ocr.
+            gst/tds compliance toolkit, live tally connectivity via secure desktop agent.
+            multi-tenant architecture with rbac and audit logs. built at discoverminds.ai.
+          </p>
+          <div class="project-tags">
+            <span class="tag">langgraph</span>
+            <span class="tag">fastapi</span>
+            <span class="tag">claude/groq/openai</span>
+            <span class="tag">whatsapp</span>
+            <span class="tag">aws</span>
+            <span class="tag">kafka</span>
+            <span class="tag">redis</span>
+          </div>
+          <div class="project-links">
+            <a href="https://github.com/Sj0605-DataSci/agent-nexus-search" target="_blank" rel="noopener">github ↗</a>
+            <a href="https://www.youtube.com/watch?v=_MD4aM5SyhI" target="_blank" rel="noopener">demo ↗</a>
+          </div>
+        </div>
+
+        <div class="project-card">
+          <div class="project-header">
+            <span class="project-name">google lens reverse engineered</span>
+            <span class="project-arrow">↗</span>
+          </div>
+          <p class="project-desc">
+            reverse-engineered google lens image search from scratch. upload an image, get visually
+            similar results via trained neural networks. systematically evaluated 7 architectures —
+            resnet, efficientnet, clip, siamese networks, triplet networks, autoencoders.
+            indexed with locality-sensitive hashing (lsh).
+          </p>
+          <div class="project-tags">
+            <span class="tag">pytorch</span>
+            <span class="tag">clip</span>
+            <span class="tag">siamese networks</span>
+            <span class="tag">lsh</span>
+            <span class="tag">flask</span>
+          </div>
+          <div class="project-links">
+            <a href="https://github.com/Sj0605-DataSci/Google_lens_reverse_engineered" target="_blank" rel="noopener">github ↗</a>
+          </div>
+        </div>
+
+        <div class="project-card">
+          <div class="project-header">
+            <span class="project-name">whisper hindi fine-tune</span>
+            <span class="project-arrow">↗</span>
+          </div>
+          <p class="project-desc">
+            fine-tuned openai whisper large v2 for hindi speech recognition over 200 epochs
+            on the google fleurs dataset. deployed on both cpu (huggingface) and gpu (cerebrium, a10).
+            production-ready api with endpoint definitions and sample audio testing utilities.
+          </p>
+          <div class="project-tags">
+            <span class="tag">whisper large v2</span>
+            <span class="tag">huggingface</span>
+            <span class="tag">cerebrium</span>
+            <span class="tag">google fleurs</span>
+            <span class="tag">hindi asr</span>
+          </div>
+          <div class="project-links">
+            <a href="https://github.com/Sj0605-DataSci/Whisper-Project" target="_blank" rel="noopener">github ↗</a>
+          </div>
+        </div>
+
+        <div class="project-card">
+          <div class="project-header">
+            <span class="project-name">sarvam ai — audio-text alignment</span>
+            <span class="project-arrow">↗</span>
+          </div>
+          <p class="project-desc">
+            hiring challenge for sarvam ai that led to a research intern offer at iit madras.
+            semantic chunking to extract and align meaningful audio-text pairs from video content.
+            eda on new testament multilingual audio/text datasets to surface insights for stt/tts optimization.
+          </p>
+          <div class="project-tags">
+            <span class="tag">audio-text alignment</span>
+            <span class="tag">semantic chunking</span>
+            <span class="tag">stt/tts</span>
+            <span class="tag">python</span>
+          </div>
+          <div class="project-links">
+            <a href="https://github.com/Sj0605-DataSci/Sarvam_Ai_Project" target="_blank" rel="noopener">github ↗</a>
+          </div>
+        </div>
+
+        <div class="project-card">
+          <div class="project-header">
+            <span class="project-name">ai4bharat — iit madras</span>
+            <span class="project-arrow">↗</span>
+          </div>
+          <p class="project-desc">
+            extensive investigation into gemma and bloom language models for cross-lingual applications.
+            text generation with beam search, top-k, top-p, nucleus sampling.
+            quantization via bitsandbytes for efficient loading of large model variants.
+            implemented svcca (google deepmind) on intermediate layer embeddings with pca + t-sne similarity analysis.
+          </p>
+          <div class="project-tags">
+            <span class="tag">bloom</span>
+            <span class="tag">gemma</span>
+            <span class="tag">huggingface</span>
+            <span class="tag">bitsandbytes</span>
+            <span class="tag">svcca</span>
+            <span class="tag">t-sne</span>
+          </div>
+          <div class="project-links">
+            <a href="https://github.com/Sj0605-DataSci/Ai4Bharat_Project" target="_blank" rel="noopener">github ↗</a>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="inner">
+      <div class="footer-col">
+        <p class="col-label">pages</p>
+        <a href="/">home</a>
+        <a href="journey.html">journey</a>
+        <a href="projects.html">projects</a>
+        <a href="blogs.html">writing</a>
+        <a href="life.html">life</a>
+      </div>
+      <div class="footer-col">
+        <p class="col-label">social</p>
+        <a href="https://github.com/Sj0605-DataSci" target="_blank" rel="noopener">github</a>
+        <a href="https://www.linkedin.com/in/sanyamjain2002/" target="_blank" rel="noopener">linkedin</a>
+        <a href="https://x.com/Sanyam0605" target="_blank" rel="noopener">twitter</a>
+      </div>
+      <div class="footer-col">
+        <p class="col-label">profiles</p>
+        <a href="https://www.kaggle.com/sammy0605" target="_blank" rel="noopener">kaggle</a>
+        <a href="https://huggingface.co/Sanyam0605" target="_blank" rel="noopener">huggingface</a>
+        <a href="https://leetcode.com/u/Sj0605-DataSci/" target="_blank" rel="noopener">leetcode</a>
+        <a href="mailto:sanyam0605@gmail.com">email</a>
+      </div>
+    </div>
+    <p class="footer-bottom">sanyam jain &mdash; 2026</p>
+  </footer>
+</div>
+
+</body>
+</html>

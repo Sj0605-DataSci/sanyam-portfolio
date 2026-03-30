@@ -1,0 +1,105 @@
+# Sanyam Jain — llms.txt
+# Machine-readable profile following the llms.txt convention.
+# Human-readable version: https://sanyam.com (or wherever this is hosted)
+
+## identity
+name: Sanyam Jain
+role: AI-ML Engineer, Researcher, Backend Engineer
+location: Delhi, India
+email: sanyam0605@gmail.com
+status: Research Assistant at IIT Delhi DAIR. Open to work/MS outside India.
+
+## links
+github: https://github.com/Sj0605-DataSci
+linkedin: https://www.linkedin.com/in/sanyamjain2002/
+twitter: https://x.com/Sanyam0605
+kaggle: https://www.kaggle.com/sammy0605
+huggingface: https://huggingface.co/Sanyam0605
+leetcode: https://leetcode.com/u/Sj0605-DataSci/
+
+## current
+- Research Assistant, IIT Delhi DAIR (Nov 2025–present)
+  Advised by Dr Parag Singla (https://www.cse.iitd.ac.in/~parags/) and Dr Rohan Paul (https://www.cse.iitd.ac.in/~rohanpaul/index.html)
+  Topic: Text2Games. Building text2game pipeline for educational conditions. Benchmarking Gemini series (2, 2.5, 3) and open-source diffusion models. RL (RMDP, MDP) guidance. Game environments with diffusion-based models (feedback, inpainting, segmentation, world models, RL). Reading vision-action and RL papers.
+  Stack: LangGraph, Redis, HuggingFace, PyRDDL gym, FastAPI
+
+## experience
+- Discoverminds.ai (https://www.discoverminds.ai/) — Cofounder & ML Engineer, Jul–Nov 2025, Bengaluru
+  Part of Residency Delta (https://www.livetheresidency.com/)
+  Built Arya (agentic network search) and Tara (WhatsApp accounting support agent)
+
+- Thena.ai (https://www.thena.ai/, FirstRound VC, Lightspeed) — ML Engineer 1, Dec 2024–Jul 2025, Bengaluru
+  Built Agent Studio from scratch. 20+ tool integrations, in-house memory layer, AI logs, automated ticket workflows.
+  Stack: LangGraph, Pydantic, Supabase, FastAPI, async Python, Grafana, AWS CloudWatch, Zenduty
+
+- Figr Design (https://figr.design/, Kalaari, Antler, Google) — ML Engineer RnD, Jul–Dec 2024, Bengaluru
+  FigrAI: text2UI with GiT, BLIP, LLaVA, Gemini, OpenAI. RAG, VectorDBs, Pydantic guardrails, W&B MLOps.
+  Stack: FastAPI, MongoDB, GCP, AWS
+
+- Writesonic (https://writesonic.com/, YC S21) — ML Research Intern, Apr–Jul 2024, Remote SF
+  Shipped "Answer the Public" feature — 10% user growth. Offered PPO.
+
+- IIIT Delhi Adv Data Science Lab (https://ads-ai.github.io/) — UG Research Associate, Dec 2023–Jul 2024, Delhi
+  Supervisor: Dr Vikram Goyal (https://www.iiitd.ac.in/vikram)
+  Indian Navy, Meity projects. Text2SQL, RAG agents, multilingual chatbots for rural maternity health.
+
+- Buildspace N&W S4 (https://buildspace.so/) — Builder, Aug–Oct 2023, Remote SF
+  Built LLM + portfolio management tool with Yahoo Finance API. Graduated.
+
+- Nokia (https://www.nokia.com/) — SWE Intern DevOps, Sep–Dec 2023, Gurgaon
+  Hardware fault dashboard. API runtime: 3min → 10sec via multithreading.
+
+- EY (https://www.ey.com/en_in) — Summer Intern Data Science, May–Jul 2023, Gurugram
+  Object detection of car dashboard symbols using YOLO family models.
+
+- Unify (https://unify.ai/, YC W23) — ML Contributor, Jan–May 2023, Remote London
+  Open-source contributions to the unified LLM routing platform.
+
+- CALIBRE DTU (https://www.linkedin.com/company/calibre-dtu/) — UG Research Assistant, Jan–Apr 2023, Delhi
+  Toxic hate speech detection using word2vec models.
+
+- Neet Navigator (https://neetnavigator.com/) — Data Scientist, Nov 2022–Jan 2023, Delhi
+  AI × medical admission counselling. MBBS college prediction and analytics.
+
+## education
+- IIT Madras — Dual Diploma in Data Science & Programming (BS Degree), Sep 2021–Sep 2025. CGPA 8.0
+- Manipal University Jaipur — B.Tech CSE, Minor: Data Analytics, Nov 2020–Jun 2024. CGPA 8.0
+- Sachdeva Public School — 12th CBSE: 94%, 10th CBSE: 92%
+
+## projects
+- Agent Nexus Search / Tara
+  GitHub: https://github.com/Sj0605-DataSci/agent-nexus-search
+  Demo: https://www.youtube.com/watch?v=_MD4aM5SyhI
+  AI copilot for TallyPrime. WhatsApp-first. Touchless document automation. GST/TDS compliance.
+
+- Google Lens Reverse Engineered
+  GitHub: https://github.com/Sj0605-DataSci/Google_lens_reverse_engineered
+  Visual image search. 7 architectures evaluated (ResNet, EfficientNet, CLIP, Siamese, Triplet, Autoencoders). LSH indexing.
+
+- Whisper Hindi Fine-tune
+  GitHub: https://github.com/Sj0605-DataSci/Whisper-Project
+  Fine-tuned Whisper Large V2 for Hindi ASR on Google Fleurs. Deployed on HuggingFace (CPU) and Cerebrium (A10 GPU).
+
+- Sarvam AI — Audio-Text Alignment
+  GitHub: https://github.com/Sj0605-DataSci/Sarvam_Ai_Project
+  Semantic chunking and EDA on multilingual audio-text datasets. Led to research intern offer at IIT Madras.
+
+- Ai4Bharat — IIT Madras
+  GitHub: https://github.com/Sj0605-DataSci/Ai4Bharat_Project
+  Bloom & Gemma: decoding strategies, quantization (bitsandbytes), SVCCA on intermediate embeddings with PCA + t-SNE.
+
+## skills
+Languages: Python, R, SQL
+Frameworks: FastAPI, LangGraph, LangChain, LlamaIndex, PyTorch, HuggingFace, Pydantic, Flask, Vue.js
+Infra: GCP, AWS, MongoDB, PostgreSQL, Redis, Kafka, Supabase, Docker, Kubernetes
+MLOps: Weights & Biases, Grafana, AWS CloudWatch
+AI/ML: RAG, VectorDBs, LLM fine-tuning, RL (MDP/RMDP), VLMs, quantization, SVCCA
+
+## personal
+- Travelling: USA, Paris, Singapore, Indonesia
+- Chess: playing since 5th grade, competed in Delhi tournaments
+- Music: played Flute and Tabla
+- Hackathons: judged at Mastercard, Microsoft, GeekRoom events in Gurgaon
+- Community: active Kaggle competitor
+- Interests: latest AI architectures, research papers, anime
+- Background: Baniya family, 30+ years in D2C computer hardware

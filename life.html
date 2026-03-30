@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>life — sanyam jain</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+  .life-section {
+    padding-bottom: 52px;
+    margin-bottom: 52px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .life-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+  }
+
+  .life-section h2 {
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    margin-bottom: 16px;
+  }
+
+  .life-section p {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.75;
+    max-width: 520px;
+    margin-bottom: 12px;
+  }
+
+  .life-section p:last-child { margin-bottom: 0; }
+
+  .place-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .place {
+    font-size: 12px;
+    padding: 4px 10px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+
+  .item-row {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .item-row:last-child { border-bottom: none; }
+
+  .item-title {
+    font-size: 14px;
+    font-weight: 400;
+    flex: 1;
+  }
+
+  .item-meta {
+    font-size: 12px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="inner">
+    <a href="/" class="logo">sanyam jain</a>
+    <ul>
+      <li><a href="journey.html">journey</a></li>
+      <li><a href="projects.html">projects</a></li>
+      <li><a href="blogs.html">writing</a></li>
+      <li><a href="life.html" class="active">life</a></li>
+    </ul>
+  </div>
+</nav>
+
+<div class="page">
+  <main class="page-content">
+    <div class="container">
+
+      <div class="page-header">
+        <h1>life</h1>
+        <p>things outside the code editor.</p>
+      </div>
+
+      <!-- travelling -->
+      <div class="life-section">
+        <h2>travelling</h2>
+        <p>
+          love getting on a flight and figuring things out on the other side.
+          every city teaches you something you can't read about.
+        </p>
+        <div class="place-list">
+          <span class="place">usa</span>
+          <span class="place">paris</span>
+          <span class="place">singapore</span>
+          <span class="place">indonesia</span>
+        </div>
+      </div>
+
+      <!-- chess -->
+      <div class="life-section">
+        <h2>chess</h2>
+        <p>
+          started playing in 5th grade. something about the game — the way every move
+          has consequences three moves later — stuck with me.
+        </p>
+        <p>
+          participated in competitions across delhi. still play when there's time.
+        </p>
+      </div>
+
+      <!-- music -->
+      <div class="life-section">
+        <h2>music</h2>
+        <p>
+          played flute and tabla growing up. appreciate the discipline it takes —
+          not unlike learning a new programming language, except the feedback loop is
+          immediate and unforgiving.
+        </p>
+      </div>
+
+      <!-- hacking & community -->
+      <div class="life-section">
+        <h2>hackathons & community</h2>
+        <p>
+          judged multiple hackathons in gurgaon with mastercard, microsoft, and geekroom.
+          there's something uniquely energetic about watching people build under a deadline.
+        </p>
+        <p>
+          active member of the kaggle community — competitions are a good forcing function
+          for trying approaches you'd never reach for on a normal day.
+        </p>
+
+      </div>
+
+      <!-- tech & anime -->
+      <div class="life-section">
+        <h2>experiments & anime</h2>
+        <p>
+          constantly experimenting with the latest models, tools, and apis —
+          if something new drops, i've probably tried it within a week.
+          nowadays experimenting with nvidia dgx spark paired with my macbook m1 pro.
+        </p>
+        <p>
+          also a committed anime watcher. the storytelling in good anime is
+          genuinely underrated.
+        </p>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="inner">
+      <div class="footer-col">
+        <p class="col-label">pages</p>
+        <a href="/">home</a>
+        <a href="journey.html">journey</a>
+        <a href="projects.html">projects</a>
+        <a href="blogs.html">writing</a>
+        <a href="life.html">life</a>
+      </div>
+      <div class="footer-col">
+        <p class="col-label">social</p>
+        <a href="https://github.com/Sj0605-DataSci" target="_blank" rel="noopener">github</a>
+        <a href="https://www.linkedin.com/in/sanyamjain2002/" target="_blank" rel="noopener">linkedin</a>
+        <a href="https://x.com/Sanyam0605" target="_blank" rel="noopener">twitter</a>
+      </div>
+      <div class="footer-col">
+        <p class="col-label">profiles</p>
+        <a href="https://www.kaggle.com/sammy0605" target="_blank" rel="noopener">kaggle</a>
+        <a href="https://huggingface.co/Sanyam0605" target="_blank" rel="noopener">huggingface</a>
+        <a href="https://leetcode.com/u/Sj0605-DataSci/" target="_blank" rel="noopener">leetcode</a>
+        <a href="mailto:sanyam0605@gmail.com">email</a>
+      </div>
+    </div>
+    <p class="footer-bottom">sanyam jain &mdash; 2026</p>
+  </footer>
+</div>
+
+</body>
+</html>
