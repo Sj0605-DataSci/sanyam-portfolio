@@ -425,8 +425,23 @@ a.project-card { cursor: pointer; }
 
 /* ── responsive ── */
 @media (max-width: 600px) {
-  nav ul { gap: 18px; }
+  nav .inner {
+    flex-wrap: wrap;
+    gap: 10px 0;
+    padding: 12px 0;
+  }
+  nav ul {
+    gap: 14px;
+    order: 3;
+    width: 100%;
+  }
+  .mode-toggle { margin-left: auto; }
+
   .blog-item { flex-direction: column; gap: 4px; }
+  .blog-excerpt { white-space: normal; }
   .blog-date { font-size: 11px; }
-  footer .inner { flex-direction: column; gap: 12px; align-items: flex-start; }
+
+  .site-footer .inner { grid-template-columns: 1fr 1fr; }
+
+  .project-tags { gap: 4px; }
 }
