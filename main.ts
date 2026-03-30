@@ -1,4 +1,7 @@
 import { prepare, layout, prepareWithSegments, layoutWithLines } from '@chenglou/pretext'
+import { inject } from '@vercel/analytics'
+
+inject()
 
 // ── pretext canvas demo ───────────────────────────────────────────────────────
 // Renders a paragraph onto a <canvas> using pretext for text measurement.
