@@ -95,19 +95,20 @@ nav ul a.active { color: var(--fg); }
 /* ── theme toggle ── */
 .theme-toggle {
   background: none;
-  border: none;
+  border: 1px solid var(--border);
+  border-radius: 4px;
   cursor: pointer;
-  font-size: 16px;
-  padding: 4px 6px;
-  color: var(--muted);
+  font-size: 14px;
+  padding: 4px 8px;
+  color: var(--fg);
   line-height: 1;
-  transition: color 0.15s;
+  transition: background 0.15s, color 0.15s;
   margin-left: 8px;
   display: flex;
   align-items: center;
 }
 
-.theme-toggle:hover { color: var(--fg); }
+.theme-toggle:hover { background: var(--hover-bg); }
 
 /* ── human / agent toggle ── */
 .mode-toggle {
