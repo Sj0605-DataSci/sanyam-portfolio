@@ -100,8 +100,43 @@ function checkBlogExcerpts(): void {
   }
 }
 
+// ── theme toggle ─────────────────────────────────────────────────────────────
+function initTheme(): void {
+  const stored = localStorage.getItem('theme')
+  if (stored === 'dark' || stored === 'light') {
+    document.documentElement.setAttribute('data-theme', stored)
+  }
+  // if no stored preference, CSS media query handles it automatically
+
+  const btn = document.getElementById('theme-toggle')
+  if (!btn) return
+
+  function updateIcon(): void {
+    const isDark =
+      document.documentElement.getAttribute('data-theme') === 'dark' ||
+      (!document.documentElement.hasAttribute('data-theme') &&
+        window.matchMedia('(prefers-color-scheme: dark)').matches)
+    btn!.textContent = isDark ? '☀' : '☾'
+    btn!.setAttribute('aria-label', isDark ? 'switch to light mode' : 'switch to dark mode')
+  }
+
+  updateIcon()
+
+  btn.addEventListener('click', () => {
+    const isDark =
+      document.documentElement.getAttribute('data-theme') === 'dark' ||
+      (!document.documentElement.hasAttribute('data-theme') &&
+        window.matchMedia('(prefers-color-scheme: dark)').matches)
+    const next = isDark ? 'light' : 'dark'
+    document.documentElement.setAttribute('data-theme', next)
+    localStorage.setItem('theme', next)
+    updateIcon()
+  })
+}
+
 // ── init ──────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
+  initTheme()
   initPretextDemo()
   checkBlogExcerpts()
 })
