@@ -76,7 +76,7 @@ const WIDGET_CSS = `
   inset: 0;
   border-radius: 50%;
   border: 2px solid var(--fg);
-  animation: cw-bubble-pulse 1.8s ease-out 3;
+  animation: cw-bubble-pulse 1.8s ease-out infinite;
   opacity: 0;
 }
 .cw-bubble.no-pulse::before { animation: none; }
@@ -98,18 +98,13 @@ const WIDGET_CSS = `
   font-size: 13px;
   white-space: nowrap;
   box-shadow: 0 2px 12px rgba(0,0,0,0.12);
-  animation: cw-label-in 0.3s ease-out 0.6s both, cw-label-out 0.3s ease-in 6s both;
+  animation: cw-label-in 0.3s ease-out 0.6s both;
   cursor: pointer;
 }
 
 @keyframes cw-label-in {
   from { opacity: 0; transform: translateX(8px); }
   to { opacity: 1; transform: translateX(0); }
-}
-
-@keyframes cw-label-out {
-  from { opacity: 1; }
-  to { opacity: 0; visibility: hidden; }
 }
 
 .cw-panel {
@@ -362,15 +357,6 @@ export function mountChatWidget(): void {
   const sendBtnEl = sendBtn
   const stopBtnEl = stopBtn
 
-  // Only show the intro label + pulse once per visitor, not on every page load.
-  const INTRO_SEEN_KEY = 'cw-intro-seen'
-  if (localStorage.getItem(INTRO_SEEN_KEY)) {
-    bubbleLabelEl.style.display = 'none'
-    bubbleEl.classList.add('no-pulse')
-  } else {
-    localStorage.setItem(INTRO_SEEN_KEY, '1')
-  }
-
   let hasMessages = false
   function clearEmptyState(): void {
     if (hasMessages) return
@@ -474,6 +460,9 @@ export function mountChatWidget(): void {
   function openPanel(): void {
     panelEl.hidden = false
     bubbleEl.setAttribute('aria-expanded', 'true')
+    // Stop drawing attention once the visitor has actually opened the chat.
+    bubbleLabelEl.style.display = 'none'
+    bubbleEl.classList.add('no-pulse')
     if (!prefetched) {
       prefetched = true
       void getEngine().prefetch()
@@ -490,7 +479,6 @@ export function mountChatWidget(): void {
     else closePanel()
   })
   bubbleLabelEl.addEventListener('click', () => {
-    bubbleLabelEl.style.display = 'none'
     if (panelEl.hidden) openPanel()
   })
   closeBtn.addEventListener('click', closePanel)
