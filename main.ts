@@ -134,9 +134,44 @@ function initTheme(): void {
   })
 }
 
+// Add a music file you are licensed to publish at /public/audio/Liyue.mp3.
+function initMusic(): void {
+  const btn = document.getElementById('music-toggle')
+  if (!(btn instanceof HTMLButtonElement)) return
+
+  const audio = new Audio('/audio/Liyue.mp3')
+  audio.loop = true
+  audio.preload = 'none'
+
+  function setPlaying(isPlaying: boolean): void {
+    btn.classList.toggle('is-playing', isPlaying)
+    btn.setAttribute('aria-pressed', String(isPlaying))
+    btn.setAttribute('aria-label', isPlaying ? 'pause music' : 'play music')
+    btn.title = isPlaying ? 'pause music' : 'play music'
+  }
+
+  btn.addEventListener('click', async () => {
+    if (!audio.paused) {
+      audio.pause()
+      return
+    }
+    try {
+      await audio.play()
+    } catch {
+      setPlaying(false)
+      btn.title = 'add /public/audio/Liyue.mp3 to enable music'
+    }
+  })
+
+  audio.addEventListener('play', () => setPlaying(true))
+  audio.addEventListener('pause', () => setPlaying(false))
+  audio.addEventListener('ended', () => setPlaying(false))
+}
+
 // ── init ──────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   initTheme()
+  initMusic()
   initPretextDemo()
   checkBlogExcerpts()
 })
