@@ -1,15 +1,18 @@
 import { VoiceAgentEngine, type AgentPhase } from './voice-agent'
 
 const WIDGET_HTML = `
-<button id="cw-bubble" class="cw-bubble" type="button" aria-label="ask about sanyam" aria-expanded="false">
-  <span class="cw-bubble-icon">
-    <span class="voice-bar"></span><span class="voice-bar"></span><span class="voice-bar"></span>
-  </span>
-</button>
+<div class="cw-bubble-wrap">
+  <button id="cw-bubble-label" class="cw-bubble-label" type="button">ask about sanyam</button>
+  <button id="cw-bubble" class="cw-bubble" type="button" aria-label="ask about sanyam" aria-expanded="false">
+    <span class="cw-bubble-icon">
+      <span class="voice-bar"></span><span class="voice-bar"></span><span class="voice-bar"></span>
+    </span>
+  </button>
+</div>
 
 <div id="cw-panel" class="cw-panel" hidden>
   <div class="cw-panel-header">
-    <span>ai mode — ask about sanyam</span>
+    <span class="cw-title">ai mode — ask about sanyam <span class="cw-tag">experiment</span></span>
     <button id="cw-close" class="cw-close" type="button" aria-label="close">&times;</button>
   </div>
 
@@ -28,6 +31,8 @@ const WIDGET_HTML = `
     <p class="cw-empty">ask something like "what is sanyam working on right now?"</p>
   </div>
 
+  <button id="cw-stop-btn" class="cw-stop-btn" type="button" hidden>■ stop</button>
+
   <div class="cw-input-row">
     <input id="cw-text-input" class="cw-text-input" type="text" placeholder="ask about sanyam…" autocomplete="off">
     <button id="cw-mic-btn" class="cw-icon-btn mic" type="button" aria-pressed="false" title="talk">🎙</button>
@@ -37,28 +42,75 @@ const WIDGET_HTML = `
 `
 
 const WIDGET_CSS = `
-.cw-bubble {
+.cw-bubble-wrap {
   position: fixed;
   bottom: 24px;
   right: 24px;
   z-index: 200;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cw-bubble {
+  position: relative;
   width: 52px;
   height: 52px;
   border-radius: 50%;
-  border: 1px solid var(--border);
-  background: var(--bg);
-  color: var(--fg);
+  border: none;
+  background: var(--fg);
+  color: var(--bg);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.12);
-  transition: border-color 0.15s, transform 0.15s;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.22);
+  transition: transform 0.15s;
+  flex-shrink: 0;
 }
-.cw-bubble:hover { border-color: var(--fg); transform: scale(1.05); }
+.cw-bubble:hover { transform: scale(1.06); }
+
+.cw-bubble::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid var(--fg);
+  animation: cw-bubble-pulse 1.8s ease-out 3;
+  opacity: 0;
+}
+.cw-bubble.no-pulse::before { animation: none; }
+
+@keyframes cw-bubble-pulse {
+  0% { transform: scale(1); opacity: 0.6; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
 
 .cw-bubble-icon { display: inline-flex; align-items: center; gap: 2px; height: 14px; }
-.cw-bubble-icon .voice-bar { width: 2px; height: 8px; border-radius: 1px; background: var(--muted); }
+.cw-bubble-icon .voice-bar { width: 2px; height: 8px; border-radius: 1px; background: var(--bg); }
+
+.cw-bubble-label {
+  background: var(--bg);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 13px;
+  white-space: nowrap;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+  animation: cw-label-in 0.3s ease-out 0.6s both, cw-label-out 0.3s ease-in 6s both;
+  cursor: pointer;
+}
+
+@keyframes cw-label-in {
+  from { opacity: 0; transform: translateX(8px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes cw-label-out {
+  from { opacity: 1; }
+  to { opacity: 0; visibility: hidden; }
+}
 
 .cw-panel {
   position: fixed;
@@ -86,6 +138,18 @@ const WIDGET_CSS = `
   border-bottom: 1px solid var(--border);
   font-size: 13px;
   color: var(--fg);
+}
+
+.cw-title { display: flex; align-items: center; gap: 8px; }
+
+.cw-tag {
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 2px 7px;
 }
 
 .cw-close {
@@ -170,6 +234,40 @@ const WIDGET_CSS = `
 
 .cw-empty { color: var(--muted); font-size: 12px; text-align: center; padding: 20px 8px; }
 
+.cw-typing {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 0;
+}
+.cw-typing .dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--muted);
+  animation: cw-typing-bounce 1.1s ease-in-out infinite;
+}
+.cw-typing .dot:nth-child(2) { animation-delay: 0.15s; }
+.cw-typing .dot:nth-child(3) { animation-delay: 0.3s; }
+@keyframes cw-typing-bounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+  30% { transform: translateY(-3px); opacity: 1; }
+}
+
+.cw-stop-btn {
+  display: block;
+  margin: 0 auto 10px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--fg);
+  font-size: 12px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.cw-stop-btn:hover { border-color: var(--fg); background: var(--hover-bg); }
+
 .cw-input-row {
   display: flex;
   align-items: center;
@@ -211,7 +309,8 @@ const WIDGET_CSS = `
 
 @media (max-width: 420px) {
   .cw-panel { right: 16px; left: 16px; width: auto; bottom: 84px; }
-  .cw-bubble { right: 16px; bottom: 16px; }
+  .cw-bubble-wrap { right: 16px; bottom: 16px; }
+  .cw-bubble-label { display: none; }
 }
 `
 
@@ -231,6 +330,7 @@ export function mountChatWidget(): void {
   document.body.appendChild(container)
 
   const bubble = el<HTMLButtonElement>('cw-bubble')
+  const bubbleLabel = el<HTMLButtonElement>('cw-bubble-label')
   const panel = el('cw-panel')
   const closeBtn = el<HTMLButtonElement>('cw-close')
   const visualizer = el('cw-visualizer')
@@ -241,14 +341,16 @@ export function mountChatWidget(): void {
   const textInput = el<HTMLInputElement>('cw-text-input')
   const micBtn = el<HTMLButtonElement>('cw-mic-btn')
   const sendBtn = el<HTMLButtonElement>('cw-send-btn')
+  const stopBtn = el<HTMLButtonElement>('cw-stop-btn')
 
   if (
-    !bubble || !panel || !closeBtn || !visualizer || !status || !progressWrap ||
-    !progressBar || !log || !textInput || !micBtn || !sendBtn
+    !bubble || !bubbleLabel || !panel || !closeBtn || !visualizer || !status || !progressWrap ||
+    !progressBar || !log || !textInput || !micBtn || !sendBtn || !stopBtn
   ) {
     return
   }
   const bubbleEl = bubble
+  const bubbleLabelEl = bubbleLabel
   const panelEl = panel
   const visualizerEl = visualizer
   const statusEl = status
@@ -258,6 +360,16 @@ export function mountChatWidget(): void {
   const textInputEl = textInput
   const micBtnEl = micBtn
   const sendBtnEl = sendBtn
+  const stopBtnEl = stopBtn
+
+  // Only show the intro label + pulse once per visitor, not on every page load.
+  const INTRO_SEEN_KEY = 'cw-intro-seen'
+  if (localStorage.getItem(INTRO_SEEN_KEY)) {
+    bubbleLabelEl.style.display = 'none'
+    bubbleEl.classList.add('no-pulse')
+  } else {
+    localStorage.setItem(INTRO_SEEN_KEY, '1')
+  }
 
   let hasMessages = false
   function clearEmptyState(): void {
@@ -276,7 +388,18 @@ export function mountChatWidget(): void {
     return p
   }
 
+  function addTypingIndicator(): HTMLElement {
+    clearEmptyState()
+    const p = document.createElement('p')
+    p.className = 'cw-msg agent'
+    p.innerHTML = '<span class="cw-typing"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>'
+    logEl.appendChild(p)
+    logEl.scrollTop = logEl.scrollHeight
+    return p
+  }
+
   let currentReplyEl: HTMLElement | null = null
+  let typingEl: HTMLElement | null = null
   let engine: VoiceAgentEngine | null = null
   let prefetched = false
 
@@ -291,8 +414,13 @@ export function mountChatWidget(): void {
           micBtnEl.disabled = busy
           sendBtnEl.disabled = busy
           textInputEl.disabled = busy
+          stopBtnEl.hidden = !(phase === 'thinking' || phase === 'speaking')
           if (phase === 'loading') progressWrapEl.hidden = false
           else if (phase !== 'error') progressWrapEl.hidden = true
+          if (phase !== 'thinking' && typingEl) {
+            typingEl.remove()
+            typingEl = null
+          }
         },
         onLoadProgress: ({ label, progress }) => {
           statusEl.textContent = label
@@ -307,11 +435,19 @@ export function mountChatWidget(): void {
           })
         },
         onSpokenChunk: (chunkText: string) => {
+          if (typingEl) {
+            typingEl.remove()
+            typingEl = null
+          }
           if (!currentReplyEl) currentReplyEl = addMessage('agent', '')
           currentReplyEl.textContent = (currentReplyEl.textContent ?? '') + chunkText
           logEl.scrollTop = logEl.scrollHeight
         },
         onReplyDone: (fullText: string) => {
+          if (typingEl) {
+            typingEl.remove()
+            typingEl = null
+          }
           if (!currentReplyEl) addMessage('agent', fullText)
         },
       })
@@ -323,8 +459,17 @@ export function mountChatWidget(): void {
     if (!question.trim()) return
     addMessage('user', question)
     currentReplyEl = null
+    typingEl = addTypingIndicator()
     await getEngine().ask(question)
   }
+
+  stopBtnEl.addEventListener('click', () => {
+    engine?.stop()
+    if (typingEl) {
+      typingEl.remove()
+      typingEl = null
+    }
+  })
 
   function openPanel(): void {
     panelEl.hidden = false
@@ -343,6 +488,10 @@ export function mountChatWidget(): void {
   bubbleEl.addEventListener('click', () => {
     if (panelEl.hidden) openPanel()
     else closePanel()
+  })
+  bubbleLabelEl.addEventListener('click', () => {
+    bubbleLabelEl.style.display = 'none'
+    if (panelEl.hidden) openPanel()
   })
   closeBtn.addEventListener('click', closePanel)
 

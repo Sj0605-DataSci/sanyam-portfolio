@@ -19,6 +19,7 @@ type MainToWorker =
   | { type: 'load' }
   | { type: 'transcribe'; audio: Float32Array }
   | { type: 'ask'; question: string }
+  | { type: 'stop' }
 
 type WorkerToMain =
   | { type: 'load-progress'; label: string; progress: number }
@@ -51,6 +52,7 @@ export class VoiceAgentEngine {
   private isPlaying = false
   private playbackAnalyser: AnalyserNode | null = null
   private playbackLevelRaf = 0
+  private currentSource: AudioBufferSourceNode | null = null
   private pendingTranscribe: { resolve: (text: string) => void } | null = null
   private pendingAsk: { resolve: () => void } | null = null
 
@@ -264,12 +266,33 @@ export class VoiceAgentEngine {
         source.buffer = chunk.buffer
         source.connect(this.playbackAnalyser!)
         source.addEventListener('ended', () => resolve())
+        this.currentSource = source
         source.start()
       })
     }
 
+    this.currentSource = null
     this.isPlaying = false
     this.stopPlaybackLevelMeter()
+  }
+
+  /** Immediately halts playback and tells the worker to stop generating further audio. */
+  stop(): void {
+    this.postToWorker({ type: 'stop' })
+    this.playQueue = []
+    if (this.currentSource) {
+      try {
+        this.currentSource.stop()
+      } catch {
+        // already stopped
+      }
+      this.currentSource = null
+    }
+    this.isPlaying = false
+    this.stopPlaybackLevelMeter()
+    this.setPhase('idle')
+    this.pendingAsk?.resolve()
+    this.pendingAsk = null
   }
 
   private async waitForPlaybackDrain(): Promise<void> {

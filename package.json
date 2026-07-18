@@ -4,8 +4,9 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "build-kb": "node scripts/build-kb.mjs",
+    "dev": "npm run build-kb && vite",
+    "build": "npm run build-kb && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -15,6 +16,7 @@
     "kokoro-js": "^1.2.1"
   },
   "devDependencies": {
+    "node-html-parser": "^9.0.0",
     "typescript": "^5.0.0",
     "vite": "^6.0.0"
   }
