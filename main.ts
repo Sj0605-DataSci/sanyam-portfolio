@@ -1,5 +1,6 @@
 import { prepare, layout, prepareWithSegments, layoutWithLines } from '@chenglou/pretext'
 import { inject } from '@vercel/analytics'
+import { mountChatWidget } from './chat-widget'
 
 inject()
 
@@ -168,26 +169,11 @@ function initMusic(): void {
   audio.addEventListener('ended', () => setPlaying(false))
 }
 
-// ── voice agent (lazy-loaded, heavy deps only fetched on first click) ─────────
-function initVoiceAgentLazy(): void {
-  const btn = document.getElementById('voice-agent-btn')
-  if (!btn) return
-  btn.addEventListener(
-    'click',
-    () => {
-      void import('./voice-agent').then(({ initVoiceAgent }) => {
-        initVoiceAgent()?.start()
-      })
-    },
-    { once: true }
-  )
-}
-
 // ── init ──────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   initTheme()
   initMusic()
   initPretextDemo()
   checkBlogExcerpts()
-  initVoiceAgentLazy()
+  mountChatWidget()
 })

@@ -1,134 +1,146 @@
-import { pipeline, AutoTokenizer, AutoModelForCausalLM, TextStreamer } from '@huggingface/transformers'
-import { KokoroTTS } from 'kokoro-js'
+export type AgentPhase = 'idle' | 'loading' | 'listening' | 'thinking' | 'speaking' | 'error'
 
-const SYSTEM_PROMPT = `You are a voice assistant on Sanyam Jain's portfolio website. Answer visitor questions about Sanyam in clear, natural, spoken English — 1-3 short sentences, conversational, no markdown, no lists. If asked something you don't know, say you're not sure and suggest checking the journey or projects page.
-
-Facts about Sanyam Jain:
-- Role: AI-ML Engineer, Researcher, Backend Engineer. Based in Delhi, India.
-- Current: Research Assistant / Project Scientist at IIT Delhi DAIR, advised by Dr Parag Singla and Dr Rohan Paul. Working on text2game pipelines, world models, and action-guided diffusion models.
-- Always looking to work at startups in frontier and deep tech — robotics, or companies building their own models like Sarvam or Smallest.
-- Founder projects: Noteweave (an auto-scientist VSCode plugin that searches arXiv/bioRxiv/PubMed/OpenReview, critiques research ideas like an ICLR reviewer, and hands a plan to coding agents — noteweave.io) and Discoverminds.ai (an open-source AI-powered LinkedIn network search agent).
-- Past roles: ML Engineer 1 at Thena.ai, ML Engineer R&D at Figr Design, ML Research Intern at Writesonic (YC S21), UG Research Associate at IIIT Delhi, SWE Intern at Nokia, Data Science Intern at EY, ML Contributor at Unify (YC W23).
-- Education: Dual Diploma in Data Science & Programming (BS) from IIT Madras, B.Tech in Computer Science & Engineering from Manipal University Jaipur.
-- Personal: grew up in a Baniya family that built a D2C computer hardware business over 30 years. Plays chess and has played flute and tabla. Interested in the latest AI research and anime.
-- Contact: sanyam0605@gmail.com, linkedin.com/in/sanyamjain2002, github.com/Sj0605-DataSci.`
-
-type Phase = 'idle' | 'loading' | 'listening' | 'thinking' | 'speaking' | 'error'
-
-interface VoiceAgentElements {
-  btn: HTMLButtonElement
-  label: HTMLElement
-  status: HTMLElement
-  transcript: HTMLElement
-  youLine: HTMLElement
-  replyLine: HTMLElement
+export interface LoadProgress {
+  label: string
+  progress: number // 0-100
 }
 
-function getElements(): VoiceAgentElements | null {
-  const btn = document.getElementById('voice-agent-btn')
-  const label = document.getElementById('voice-agent-label')
-  const status = document.getElementById('voice-agent-status')
-  const transcript = document.getElementById('voice-agent-transcript')
-  const youLine = document.getElementById('voice-agent-you')
-  const replyLine = document.getElementById('voice-agent-reply')
-  if (
-    !(btn instanceof HTMLButtonElement) ||
-    label === null ||
-    status === null ||
-    transcript === null ||
-    youLine === null ||
-    replyLine === null
-  ) {
-    return null
-  }
-  return { btn, label, status, transcript, youLine, replyLine }
+export interface VoiceAgentCallbacks {
+  onPhaseChange?: (phase: AgentPhase, statusText: string) => void
+  onLoadProgress?: (progress: LoadProgress) => void
+  onTranscript?: (text: string) => void
+  /** Called once per sentence, right as its audio starts playing — keeps text in sync with voice. */
+  onSpokenChunk?: (chunkText: string) => void
+  onReplyDone?: (fullText: string) => void
+  onAudioLevel?: (level: number) => void // 0-1, while mic recording or agent speaking
 }
 
-class VoiceAgent {
-  private els: VoiceAgentElements
-  private phase: Phase = 'idle'
-  private modelsReady = false
+type MainToWorker =
+  | { type: 'load' }
+  | { type: 'transcribe'; audio: Float32Array }
+  | { type: 'ask'; question: string }
 
-  private transcriber: any = null
-  private tokenizer: any = null
-  private llm: any = null
-  private tts: any = null
+type WorkerToMain =
+  | { type: 'load-progress'; label: string; progress: number }
+  | { type: 'ready' }
+  | { type: 'load-error'; message: string }
+  | { type: 'transcript'; text: string }
+  | { type: 'reply-done'; text: string }
+  | { type: 'audio-chunk'; buffer: ArrayBuffer; sampleRate: number; text: string }
+  | { type: 'speaking-done' }
+  | { type: 'error'; message: string }
+
+// All model inference (Whisper, LFM2.5, Kokoro) runs inside this Worker so the
+// main thread — and the page's own animations/scroll/clicks — never freezes,
+// no matter how heavy a single generation step is.
+export class VoiceAgentEngine {
+  private callbacks: VoiceAgentCallbacks
+  private phase: AgentPhase = 'idle'
+  private worker: Worker | null = null
+  private readyPromise: Promise<boolean> | null = null
+  private resolveReady: ((ok: boolean) => void) | null = null
 
   private mediaRecorder: MediaRecorder | null = null
   private audioChunks: Blob[] = []
-  private audioCtx: AudioContext | null = null
+  private micAudioCtx: AudioContext | null = null
+  private micAnalyser: AnalyserNode | null = null
+  private micLevelRaf = 0
 
-  constructor(els: VoiceAgentElements) {
-    this.els = els
-    this.els.btn.addEventListener('click', () => void this.handleClick())
+  private playbackCtx: AudioContext | null = null
+  private playQueue: { buffer: AudioBuffer; text: string }[] = []
+  private isPlaying = false
+  private playbackAnalyser: AnalyserNode | null = null
+  private playbackLevelRaf = 0
+  private pendingTranscribe: { resolve: (text: string) => void } | null = null
+  private pendingAsk: { resolve: () => void } | null = null
+
+  constructor(callbacks: VoiceAgentCallbacks = {}) {
+    this.callbacks = callbacks
   }
 
-  /** Entry point for the first click, forwarded from the lazy-loading bootstrap in main.ts. */
-  start(): void {
-    void this.handleClick()
+  getPhase(): AgentPhase {
+    return this.phase
   }
 
-  private setPhase(phase: Phase, statusText = ''): void {
+  private setPhase(phase: AgentPhase, statusText = ''): void {
     this.phase = phase
-    this.els.btn.classList.toggle('is-listening', phase === 'listening')
-    this.els.btn.classList.toggle('is-speaking', phase === 'thinking' || phase === 'speaking')
-    this.els.btn.setAttribute('aria-pressed', String(phase !== 'idle' && phase !== 'error'))
-    this.els.status.textContent = statusText
-
-    const labels: Record<Phase, string> = {
-      idle: 'ask about me — tap to talk',
-      loading: 'loading voice agent…',
-      listening: 'listening… tap to stop',
-      thinking: 'thinking…',
-      speaking: 'speaking…',
-      error: 'ask about me — tap to talk',
-    }
-    this.els.label.textContent = labels[phase]
+    this.callbacks.onPhaseChange?.(phase, statusText)
   }
 
-  private async handleClick(): Promise<void> {
-    if (this.phase === 'loading' || this.phase === 'thinking' || this.phase === 'speaking') return
+  /** Spins up the worker and kicks off model downloads; safe to call multiple times. */
+  prefetch(): Promise<boolean> {
+    if (this.readyPromise) return this.readyPromise
+    this.setPhase('loading', 'loading models…')
 
-    if (this.phase === 'listening') {
-      this.stopRecording()
-      return
-    }
+    this.readyPromise = new Promise<boolean>((resolve) => {
+      this.resolveReady = resolve
+    })
 
-    if (!this.modelsReady) {
-      await this.loadModels()
-      if (!this.modelsReady) return
-    }
+    this.worker = new Worker(new URL('./voice-worker.ts', import.meta.url), { type: 'module' })
+    this.worker.addEventListener('message', (e: MessageEvent<WorkerToMain>) => this.handleWorkerMessage(e.data))
+    this.worker.addEventListener('error', (e) => {
+      console.error('voice agent: worker error', e)
+      this.setPhase('error', 'could not load the ai models — try chrome or edge with webgpu enabled')
+      this.resolveReady?.(false)
+    })
 
-    await this.startRecording()
+    this.postToWorker({ type: 'load' })
+    return this.readyPromise
   }
 
-  private async loadModels(): Promise<void> {
-    this.setPhase('loading', 'downloading models (one-time, ~200MB)…')
-    try {
-      this.transcriber = await pipeline('automatic-speech-recognition', 'onnx-community/whisper-tiny', {
-        device: 'webgpu',
-      })
+  private postToWorker(msg: MainToWorker, transfer: Transferable[] = []): void {
+    this.worker?.postMessage(msg, transfer)
+  }
 
-      this.tokenizer = await AutoTokenizer.from_pretrained('LiquidAI/LFM2.5-230M-ONNX')
-      this.llm = await AutoModelForCausalLM.from_pretrained('LiquidAI/LFM2.5-230M-ONNX', {
-        device: 'webgpu',
-        dtype: 'q4',
-      })
-
-      this.tts = await KokoroTTS.from_pretrained('onnx-community/Kokoro-82M-v1.0-ONNX', {
-        dtype: 'q8',
-        device: 'wasm',
-      })
-
-      this.modelsReady = true
-      this.setPhase('idle')
-    } catch (err) {
-      console.error('voice agent: failed to load models', err)
-      this.setPhase('error', 'could not load voice agent — try a browser with WebGPU (chrome/edge)')
+  private handleWorkerMessage(msg: WorkerToMain): void {
+    switch (msg.type) {
+      case 'load-progress':
+        this.callbacks.onLoadProgress?.({ label: msg.label, progress: msg.progress })
+        break
+      case 'ready':
+        this.setPhase('idle')
+        this.resolveReady?.(true)
+        break
+      case 'load-error':
+        console.error('voice agent: model load failed in worker', msg.message)
+        this.setPhase('error', 'could not load the ai models — try chrome or edge with webgpu enabled')
+        this.resolveReady?.(false)
+        break
+      case 'transcript':
+        this.pendingTranscribe?.resolve(msg.text)
+        this.pendingTranscribe = null
+        break
+      case 'reply-done':
+        this.callbacks.onReplyDone?.(msg.text)
+        break
+      case 'audio-chunk':
+        void this.enqueueAudioChunk(msg.buffer, msg.sampleRate, msg.text)
+        break
+      case 'speaking-done':
+        void this.waitForPlaybackDrain().then(() => {
+          this.setPhase('idle')
+          this.pendingAsk?.resolve()
+          this.pendingAsk = null
+        })
+        break
+      case 'error':
+        console.error('voice agent: worker error', msg.message)
+        this.setPhase('error', 'something went wrong — try again')
+        this.pendingAsk?.resolve()
+        this.pendingAsk = null
+        break
     }
   }
 
-  private async startRecording(): Promise<void> {
+  async ensureReady(): Promise<boolean> {
+    if (this.phase !== 'error' && this.readyPromise) return this.readyPromise
+    return this.prefetch()
+  }
+
+  // ── voice input (mic capture stays on the main thread — Workers have no DOM) ──
+
+  async startRecording(): Promise<void> {
+    if (!(await this.ensureReady())) return
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
       this.audioChunks = []
@@ -138,103 +150,154 @@ class VoiceAgent {
       })
       this.mediaRecorder.addEventListener('stop', () => {
         stream.getTracks().forEach((t) => t.stop())
-        void this.handleRecordingStopped()
+        this.stopMicLevelMeter()
       })
       this.mediaRecorder.start()
-      this.setPhase('listening')
+      this.startMicLevelMeter(stream)
+      this.setPhase('listening', 'listening…')
     } catch (err) {
       console.error('voice agent: mic access failed', err)
       this.setPhase('error', 'microphone access denied')
     }
   }
 
-  private stopRecording(): void {
-    if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
-      this.mediaRecorder.stop()
-    }
-  }
+  async stopRecordingAndTranscribe(): Promise<string> {
+    if (!this.mediaRecorder || this.mediaRecorder.state === 'inactive') return ''
 
-  private async handleRecordingStopped(): Promise<void> {
+    const stopped = new Promise<void>((resolve) => {
+      this.mediaRecorder!.addEventListener('stop', () => resolve(), { once: true })
+    })
+    this.mediaRecorder.stop()
+    await stopped
+
     this.setPhase('thinking', 'transcribing…')
     const blob = new Blob(this.audioChunks, { type: 'audio/webm' })
-    const audioData = await this.decodeAudio(blob)
+    const audioData = await this.decodeToFloat32(blob)
 
-    const result = await this.transcriber(audioData)
-    const text: string = Array.isArray(result) ? result[0]?.text ?? '' : result.text ?? ''
-    const question = text.trim()
-
-    if (!question) {
-      this.setPhase('idle', "didn't catch that — try again")
-      return
-    }
-
-    this.els.transcript.hidden = false
-    this.els.youLine.textContent = question
-    this.els.replyLine.textContent = ''
-
-    this.setPhase('thinking', 'thinking…')
-    const answer = await this.generateAnswer(question)
-    this.els.replyLine.textContent = answer
-
-    this.setPhase('speaking', 'speaking…')
-    await this.speak(answer)
-    this.setPhase('idle')
+    const text = await new Promise<string>((resolve) => {
+      this.pendingTranscribe = { resolve }
+      // Float32Array is transferable via its underlying buffer.
+      this.postToWorker({ type: 'transcribe', audio: audioData }, [audioData.buffer])
+    })
+    return text
   }
 
-  private async decodeAudio(blob: Blob): Promise<Float32Array> {
-    if (!this.audioCtx) {
-      this.audioCtx = new AudioContext({ sampleRate: 16000 })
+  private startMicLevelMeter(stream: MediaStream): void {
+    if (!this.micAudioCtx) this.micAudioCtx = new AudioContext()
+    const source = this.micAudioCtx.createMediaStreamSource(stream)
+    this.micAnalyser = this.micAudioCtx.createAnalyser()
+    this.micAnalyser.fftSize = 256
+    source.connect(this.micAnalyser)
+
+    const data = new Uint8Array(this.micAnalyser.frequencyBinCount)
+    const tick = (): void => {
+      if (!this.micAnalyser) return
+      this.micAnalyser.getByteTimeDomainData(data)
+      let sumSquares = 0
+      for (const v of data) {
+        const norm = (v - 128) / 128
+        sumSquares += norm * norm
+      }
+      const rms = Math.sqrt(sumSquares / data.length)
+      this.callbacks.onAudioLevel?.(Math.min(1, rms * 4))
+      this.micLevelRaf = requestAnimationFrame(tick)
     }
+    tick()
+  }
+
+  private stopMicLevelMeter(): void {
+    cancelAnimationFrame(this.micLevelRaf)
+    this.micAnalyser = null
+    this.callbacks.onAudioLevel?.(0)
+  }
+
+  private async decodeToFloat32(blob: Blob): Promise<Float32Array> {
+    const ctx = new AudioContext({ sampleRate: 16000 })
     const arrayBuffer = await blob.arrayBuffer()
-    const audioBuffer = await this.audioCtx.decodeAudioData(arrayBuffer)
-    return audioBuffer.getChannelData(0)
+    const audioBuffer = await ctx.decodeAudioData(arrayBuffer)
+    return audioBuffer.getChannelData(0).slice()
   }
 
-  private async generateAnswer(question: string): Promise<string> {
-    const messages = [
-      { role: 'system', content: SYSTEM_PROMPT },
-      { role: 'user', content: question },
-    ]
-    const inputs = this.tokenizer.apply_chat_template(messages, {
-      add_generation_prompt: true,
-      return_dict: true,
-    })
+  // ── text + voice output ─────────────────────────────────────────────────
 
-    let generated = ''
-    const streamer = new TextStreamer(this.tokenizer, {
-      skip_prompt: true,
-      skip_special_tokens: true,
-      callback_function: (text: string) => {
-        generated += text
-      },
-    })
+  /** Full turn: given user text, generate a reply (streamed) and speak it (streamed). */
+  async ask(question: string): Promise<void> {
+    if (!(await this.ensureReady())) return
 
-    await this.llm.generate({
-      ...inputs,
-      max_new_tokens: 150,
-      do_sample: false,
-      streamer,
-    })
+    this.callbacks.onTranscript?.(question)
+    this.setPhase('thinking', 'thinking…')
 
-    return generated.trim() || "i'm not sure — check the journey or projects page for more."
-  }
-
-  private async speak(text: string): Promise<void> {
-    const audio = await this.tts.generate(text, { voice: 'af_heart' })
-    const blob = audio.toBlob()
-    const url = URL.createObjectURL(blob)
-    const player = new Audio(url)
     await new Promise<void>((resolve) => {
-      player.addEventListener('ended', () => resolve())
-      player.addEventListener('error', () => resolve())
-      void player.play()
+      this.pendingAsk = { resolve }
+      this.postToWorker({ type: 'ask', question })
     })
-    URL.revokeObjectURL(url)
   }
-}
 
-export function initVoiceAgent(): VoiceAgent | null {
-  const els = getElements()
-  if (els === null) return null
-  return new VoiceAgent(els)
+  // ── streamed audio playback ─────────────────────────────────────────────
+
+  private async enqueueAudioChunk(buffer: ArrayBuffer, sampleRate: number, text: string): Promise<void> {
+    if (!this.playbackCtx) this.playbackCtx = new AudioContext()
+    const floatData = new Float32Array(buffer)
+    const audioBuffer = this.playbackCtx.createBuffer(1, floatData.length, sampleRate)
+    audioBuffer.copyToChannel(floatData, 0)
+    this.playQueue.push({ buffer: audioBuffer, text })
+    if (this.phase !== 'speaking') this.setPhase('speaking', 'speaking…')
+    if (!this.isPlaying) void this.drainQueue()
+  }
+
+  private async drainQueue(): Promise<void> {
+    if (!this.playbackCtx) return
+    this.isPlaying = true
+
+    if (!this.playbackAnalyser) {
+      this.playbackAnalyser = this.playbackCtx.createAnalyser()
+      this.playbackAnalyser.fftSize = 256
+      this.playbackAnalyser.connect(this.playbackCtx.destination)
+      this.startPlaybackLevelMeter()
+    }
+
+    while (this.playQueue.length > 0) {
+      const chunk = this.playQueue.shift()!
+      this.callbacks.onSpokenChunk?.(chunk.text)
+      await new Promise<void>((resolve) => {
+        const source = this.playbackCtx!.createBufferSource()
+        source.buffer = chunk.buffer
+        source.connect(this.playbackAnalyser!)
+        source.addEventListener('ended', () => resolve())
+        source.start()
+      })
+    }
+
+    this.isPlaying = false
+    this.stopPlaybackLevelMeter()
+  }
+
+  private async waitForPlaybackDrain(): Promise<void> {
+    while (this.isPlaying || this.playQueue.length > 0) {
+      await new Promise((r) => setTimeout(r, 50))
+    }
+  }
+
+  private startPlaybackLevelMeter(): void {
+    if (!this.playbackAnalyser) return
+    const data = new Uint8Array(this.playbackAnalyser.frequencyBinCount)
+    const tick = (): void => {
+      if (!this.playbackAnalyser) return
+      this.playbackAnalyser.getByteTimeDomainData(data)
+      let sumSquares = 0
+      for (const v of data) {
+        const norm = (v - 128) / 128
+        sumSquares += norm * norm
+      }
+      const rms = Math.sqrt(sumSquares / data.length)
+      this.callbacks.onAudioLevel?.(Math.min(1, rms * 4))
+      this.playbackLevelRaf = requestAnimationFrame(tick)
+    }
+    tick()
+  }
+
+  private stopPlaybackLevelMeter(): void {
+    cancelAnimationFrame(this.playbackLevelRaf)
+    this.callbacks.onAudioLevel?.(0)
+  }
 }
