@@ -1,13 +1,13 @@
 # Sanyam Jain — llms.txt
 # Machine-readable profile following the llms.txt convention.
-# Human-readable version: https://sanyam.com (or wherever this is hosted)
+# Human-readable version: https://sanyam-ai.in
 
 ## identity
 name: Sanyam Jain
 role: AI-ML Engineer, Researcher, Backend Engineer
 location: Delhi, India
 email: sanyam0605@gmail.com
-status: Research Assistant at IIT Delhi DAIR. Open to work/MS outside India.
+status: Research Assistant at IIT Delhi DAIR. Always looking to work at startups in frontier and deep tech (robotics, or startups building their own models — e.g. Sarvam, Smallest, if in India).
 
 ## links
 github: https://github.com/Sj0605-DataSci
@@ -20,7 +20,7 @@ leetcode: https://leetcode.com/u/Sj0605-DataSci/
 ## current
 - Research Assistant, IIT Delhi DAIR (Nov 2025–present)
   Advised by Dr Parag Singla (https://www.cse.iitd.ac.in/~parags/) and Dr Rohan Paul (https://www.cse.iitd.ac.in/~rohanpaul/index.html)
-  Topic: Text2Games. Building text2game pipeline for educational conditions. Benchmarking Gemini series (2, 2.5, 3) and open-source diffusion models. RL (RMDP, MDP) guidance. Game environments with diffusion-based models (feedback, inpainting, segmentation, world models, RL). Reading vision-action and RL papers.
+  Topic: Text2Games. Building text2game pipeline for educational conditions. Benchmarking Gemini series (2, 2.5, 3) and open-source diffusion models. RL (RMDP, MDP) guidance. Nowadays working on world models and action-guided diffusion models. Reading vision-action and RL papers.
   Stack: LangGraph, Redis, HuggingFace, PyRDDL gym, FastAPI
 
 ## experience
