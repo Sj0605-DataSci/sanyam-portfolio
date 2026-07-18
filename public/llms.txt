@@ -7,7 +7,7 @@ name: Sanyam Jain
 role: AI-ML Engineer, Researcher, Backend Engineer
 location: Delhi, India
 email: sanyam0605@gmail.com
-status: Research Assistant at IIT Delhi DAIR. Always looking to work at startups in frontier and deep tech (robotics, or startups building their own models — e.g. Sarvam, Smallest, if in India).
+status: Research Assistant / Project Scientist at IIT Delhi DAIR. Always looking to work at startups in frontier and deep tech (robotics, or startups building their own models — e.g. Sarvam, Smallest, if in India).
 
 ## links
 github: https://github.com/Sj0605-DataSci
@@ -18,7 +18,7 @@ huggingface: https://huggingface.co/Sanyam0605
 leetcode: https://leetcode.com/u/Sj0605-DataSci/
 
 ## current
-- Research Assistant, IIT Delhi DAIR (Nov 2025–present)
+- Research Assistant / Project Scientist, IIT Delhi DAIR (Nov 2025–present)
   Advised by Dr Parag Singla (https://www.cse.iitd.ac.in/~parags/) and Dr Rohan Paul (https://www.cse.iitd.ac.in/~rohanpaul/index.html)
   Topic: Text2Games. Building text2game pipeline for educational conditions. Benchmarking Gemini series (2, 2.5, 3) and open-source diffusion models. RL (RMDP, MDP) guidance. Nowadays working on world models and action-guided diffusion models. Reading vision-action and RL papers.
   Stack: LangGraph, Redis, HuggingFace, PyRDDL gym, FastAPI
@@ -67,10 +67,27 @@ leetcode: https://leetcode.com/u/Sj0605-DataSci/
 - Sachdeva Public School — 12th CBSE: 94%, 10th CBSE: 92%
 
 ## projects
-- Agent Nexus Search / Tara
+- Noteweave (Mar 2026–Jul 2026)
+  Website: https://noteweave.io/
+  Paper: https://arxiv.org/abs/2605.27072v1
+  GitHub: https://github.com/Sj0605-DataSci/noteweave-extension
+  Demo: https://youtu.be/Z1jtrCW5Ync | https://youtu.be/1s5tFd-JlIM
+  Auto scientist in your VSCode plugin. Give it a research idea, it searches arXiv, bioRxiv, PubMed,
+  OpenReview and more. Critiques like an ICLR reviewer (whitepaper on arXiv), then gives a plan any
+  coding agent (Claude Code, Codex, Hermes) can execute.
+  Stack: OpenAI/Claude/Gemini APIs, MiniLM embeddings, Postgres, ElasticSearch, Qdrant, FastAPI, Redis,
+  TypeScript/React/Next.js. Self-hosted on a spare laptop with Cloudflare.
+  Met Elevation, VPs Partners, Infoedge and others, got angel checks. Part of Finc Canopy + YC Summer
+  Startup School Bengaluru.
+
+- Discoverminds.ai (Aug 2025–Nov 2025)
   GitHub: https://github.com/Sj0605-DataSci/agent-nexus-search
-  Demo: https://www.youtube.com/watch?v=_MD4aM5SyhI
-  AI copilot for TallyPrime. WhatsApp-first. Touchless document automation. GST/TDS compliance.
+  Demo: https://youtu.be/7JKKhs5lHOA | https://youtu.be/_MD4aM5SyhI
+  Started as an experiment for our startup — frustrated with LinkedIn search, automated it via AI.
+  Thesis: many startups like Pylon hire via this. Open-source implementation, including a browser
+  extension to auth via LinkedIn and scrape/index connections in the background.
+  Stack: Next.js, React, Axios, Vercel (frontend); Python, LangGraph, Supabase, Docker, FastAPI,
+  Railway, HuggingFace rerankers, pgvector, Redis Queues, Portkey (backend).
 
 - Google Lens Reverse Engineered
   GitHub: https://github.com/Sj0605-DataSci/Google_lens_reverse_engineered
