@@ -1,11 +1,5 @@
-import { pipeline, AutoTokenizer, AutoModelForCausalLM, TextStreamer, env } from '@huggingface/transformers'
+import { pipeline, AutoTokenizer, AutoModelForCausalLM, TextStreamer } from '@huggingface/transformers'
 import { KokoroTTS } from 'kokoro-js'
-
-// Serve the ONNX Runtime WASM binaries (~40MB) from a CDN instead of bundling
-// them into this site's own deploy — they're only needed as a fallback path.
-if (env.backends.onnx.wasm) {
-  env.backends.onnx.wasm.wasmPaths = 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3/dist/'
-}
 
 const SYSTEM_PROMPT = `You are a voice assistant on Sanyam Jain's portfolio website. Answer visitor questions about Sanyam in clear, natural, spoken English — 1-3 short sentences, conversational, no markdown, no lists. If asked something you don't know, say you're not sure and suggest checking the journey or projects page.
 
