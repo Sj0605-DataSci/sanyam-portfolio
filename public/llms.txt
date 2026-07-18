@@ -13,6 +13,8 @@ status: Research Assistant / Project Scientist at IIT Delhi DAIR. Always looking
 github: https://github.com/Sj0605-DataSci
 linkedin: https://www.linkedin.com/in/sanyamjain2002/
 twitter: https://x.com/Sanyam0605
+scholar: https://scholar.google.com/citations?user=zjAjQoAAAAAJ&hl=en
+openreview: https://openreview.net/profile?id=~Sanyam_Jain4
 kaggle: https://www.kaggle.com/sammy0605
 huggingface: https://huggingface.co/Sanyam0605
 leetcode: https://leetcode.com/u/Sj0605-DataSci/
