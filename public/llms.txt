@@ -73,7 +73,7 @@ leetcode: https://leetcode.com/u/Sj0605-DataSci/
   Website: https://noteweave.io/
   Paper: https://arxiv.org/abs/2605.27072v1
   GitHub: https://github.com/Sj0605-DataSci/noteweave-extension
-  Demo: https://youtu.be/Z1jtrCW5Ync | https://youtu.be/1s5tFd-JlIM
+  Demo: https://youtu.be/Z1jtrCW5Ync | Founders video: https://youtu.be/1s5tFd-JlIM
   Auto scientist in your VSCode plugin. Give it a research idea, it searches arXiv, bioRxiv, PubMed,
   OpenReview and more. Critiques like an ICLR reviewer (whitepaper on arXiv), then gives a plan any
   coding agent (Claude Code, Codex, Hermes) can execute.
@@ -84,7 +84,7 @@ leetcode: https://leetcode.com/u/Sj0605-DataSci/
 
 - Discoverminds.ai (Aug 2025–Nov 2025)
   GitHub: https://github.com/Sj0605-DataSci/agent-nexus-search
-  Demo: https://youtu.be/7JKKhs5lHOA | https://youtu.be/_MD4aM5SyhI
+  Founders video: https://youtu.be/7JKKhs5lHOA | Demo: https://youtu.be/_MD4aM5SyhI
   Started as an experiment for our startup — frustrated with LinkedIn search, automated it via AI.
   Thesis: many startups like Pylon hire via this. Open-source implementation, including a browser
   extension to auth via LinkedIn and scrape/index connections in the background.
