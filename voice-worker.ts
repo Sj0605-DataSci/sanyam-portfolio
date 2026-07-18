@@ -33,9 +33,22 @@ function isBroadQuestion(question: string): boolean {
   return BROAD_QUESTION_PATTERNS.some((re) => re.test(trimmed))
 }
 
+// "What is he doing/building right now" style questions match on similarity
+// against old journey/project text just as well as the current one — so
+// retrieval alone can surface a stale chunk. When a question asks about the
+// present, force in whichever journey chunk is still ongoing ("— present"),
+// so the model always has the truly current role to answer from.
+const CURRENT_QUESTION_PATTERN = /\b(right now|these days|currently|nowadays|at the moment|present(ly)?|these\s?past\s+few|working on now|is he doing|is he building|is he working)\b/i
+
+function isCurrentQuestion(question: string): boolean {
+  return CURRENT_QUESTION_PATTERN.test(question.trim())
+}
+
 const ANSWER_SYSTEM_PROMPT = `You are Sanyam Jain's portfolio assistant. The excerpts below are true, verified facts about Sanyam — treat them as your own knowledge, not as something someone "provided" to you. Answer the question directly and confidently using them, in 1-3 short spoken sentences, conversational, no markdown, no lists.
 
 Never say things like "I don't have personal knowledge", "based on the information provided", "I can share general information", or any other hedge about where the facts came from — just state the facts plainly, as if you already knew them.
+
+Excerpts from his journey timeline include a date range (e.g. "aug 2023 — oct 2023"). Use these to reason about timing: only describe something as what he "is doing" or "is currently building" if it's his most recent role with no end date or an explicit "present"/ongoing marker. Anything with a past date range is something he "worked on" or "built" — phrase it in the past tense, not as current work.
 
 Never invent, guess, or add anything not stated in the excerpts. If the excerpts truly don't contain the answer, simply say you're not sure and suggest checking the journey or projects page — nothing more.`
 
@@ -51,6 +64,8 @@ type MainToWorker =
 type WorkerToMain =
   | { type: 'load-progress'; label: string; progress: number }
   | { type: 'ready' }
+  | { type: 'warm-up-progress'; progress: number }
+  | { type: 'warm-up-done' }
   | { type: 'load-error'; message: string }
   | { type: 'transcript'; text: string }
   | { type: 'reply-done'; text: string }
@@ -71,6 +86,7 @@ let llm: any = null
 let tts: any = null
 let ready = false
 let stopRequested = false
+let warmUpPromise: Promise<void> | null = null
 
 let kb: KBChunk[] = []
 let kbEmbeddings: Float32Array[] = []
@@ -174,9 +190,19 @@ async function retrieveTopChunks(question: string): Promise<{ chunks: KBChunk[];
     .sort((a, b) => b.score - a.score)
     .slice(0, TOP_K)
 
+  const topScore = Math.max(...cosineScores)
+
+  if (isCurrentQuestion(question)) {
+    const currentIdx = kb.findIndex((c) => c.source === 'journey.html' && /\bpresent\b/i.test(c.text))
+    if (currentIdx !== -1 && !ranked.some((r) => r.i === currentIdx)) {
+      ranked.pop()
+      ranked.push({ score: hybrid[currentIdx], i: currentIdx })
+    }
+  }
+
   return {
     chunks: ranked.map((r) => kb[r.i]),
-    topScore: Math.max(...cosineScores),
+    topScore,
   }
 }
 
@@ -223,28 +249,69 @@ async function loadModels(): Promise<void> {
 
     ready = true
     post({ type: 'ready' })
+
+    warmUpPromise = warmUp()
   } catch (err) {
     console.error('voice worker: failed to load models', err)
     post({ type: 'load-error', message: err instanceof Error ? err.message : String(err) })
   }
 }
 
+// First real inference on each backend pays a one-time JIT/shader-compile
+// cost (WebGPU pipeline creation, WASM kernel warm-up). Run a throwaway
+// pass through every model right after load, off the back of the loading
+// screen, so a visitor's first actual question doesn't eat that cost.
+// Runs as discrete steps (not Promise.all) purely so progress can tick up.
+async function warmUp(): Promise<void> {
+  const steps: Array<() => Promise<unknown>> = [
+    () => embed('warm up'),
+    () => tts.generate('Hi.', { voice: 'af_heart' }),
+    () => {
+      const dummyPrompt =
+        '<|startoftext|><|im_start|>system\nWarm-up.<|im_end|>\n<|im_start|>user\nHi<|im_end|>\n<|im_start|>assistant\n'
+      const inputs = tokenizer(dummyPrompt, { return_tensors: 'pt' })
+      return llm.generate({ ...inputs, max_new_tokens: 1, do_sample: false })
+    },
+  ]
+
+  for (let i = 0; i < steps.length; i++) {
+    try {
+      await steps[i]()
+    } catch (err) {
+      console.warn('voice worker: warm-up step failed (non-fatal)', err)
+    }
+    post({ type: 'warm-up-progress', progress: ((i + 1) / steps.length) * 100 })
+  }
+
+  post({ type: 'warm-up-done' })
+}
+
 async function transcribe(audio: Float32Array): Promise<void> {
+  if (warmUpPromise) await warmUpPromise
   const result = await transcriber(audio, { language: null, prompt: ASR_PROMPT })
   const text: string = Array.isArray(result) ? result[0]?.text ?? '' : result.text ?? ''
   post({ type: 'transcript', text: text.trim() })
 }
 
+// Canned text (OVERVIEW/REFUSAL) is already fully known, but still streamed
+// sentence-by-sentence through Kokoro so audio starts on the first sentence
+// instead of the caller waiting for the whole paragraph to synthesize.
 async function speakDirect(text: string): Promise<void> {
-  const audio = await tts.generate(text, { voice: 'af_heart' })
-  const buf = audio.audio.buffer.slice(
-    audio.audio.byteOffset,
-    audio.audio.byteOffset + audio.audio.byteLength
-  )
-  post({ type: 'audio-chunk', buffer: buf, sampleRate: audio.sampling_rate, text }, [buf])
+  const splitter = new TextSplitterStream()
+  const audioStream = tts.stream(splitter, { voice: 'af_heart' })
+  splitter.push(text)
+  splitter.close()
+
+  for await (const { text: chunkText, audio } of audioStream) {
+    if (stopRequested) break
+    const samples = audio.audio
+    const buf = samples.buffer.slice(samples.byteOffset, samples.byteOffset + samples.byteLength)
+    post({ type: 'audio-chunk', buffer: buf, sampleRate: audio.sampling_rate, text: chunkText }, [buf])
+  }
 }
 
 async function ask(question: string): Promise<void> {
+  if (warmUpPromise) await warmUpPromise
   stopRequested = false
 
   if (isBroadQuestion(question)) {
@@ -300,7 +367,7 @@ async function ask(question: string): Promise<void> {
   })
 
   const generation = llm
-    .generate({ ...inputs, max_new_tokens: 150, do_sample: true, temperature: 0.4, streamer })
+    .generate({ ...inputs, max_new_tokens: 150, do_sample: false, streamer })
     .then(() => {
       splitter.close()
     })

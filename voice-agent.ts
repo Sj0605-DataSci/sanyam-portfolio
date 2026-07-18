@@ -1,4 +1,4 @@
-export type AgentPhase = 'idle' | 'loading' | 'listening' | 'thinking' | 'speaking' | 'error'
+export type AgentPhase = 'idle' | 'loading' | 'warming-up' | 'listening' | 'thinking' | 'speaking' | 'error'
 
 export interface LoadProgress {
   label: string
@@ -24,6 +24,8 @@ type MainToWorker =
 type WorkerToMain =
   | { type: 'load-progress'; label: string; progress: number }
   | { type: 'ready' }
+  | { type: 'warm-up-progress'; progress: number }
+  | { type: 'warm-up-done' }
   | { type: 'load-error'; message: string }
   | { type: 'transcript'; text: string }
   | { type: 'reply-done'; text: string }
@@ -100,6 +102,13 @@ export class VoiceAgentEngine {
         this.callbacks.onLoadProgress?.({ label: msg.label, progress: msg.progress })
         break
       case 'ready':
+        this.setPhase('warming-up', 'warming up…')
+        this.callbacks.onLoadProgress?.({ label: 'warming up…', progress: 0 })
+        break
+      case 'warm-up-progress':
+        this.callbacks.onLoadProgress?.({ label: 'warming up…', progress: msg.progress })
+        break
+      case 'warm-up-done':
         this.setPhase('idle')
         this.resolveReady?.(true)
         break

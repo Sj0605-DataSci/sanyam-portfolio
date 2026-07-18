@@ -396,12 +396,12 @@ export function mountChatWidget(): void {
           statusEl.textContent = statusText
           visualizerEl.classList.toggle('is-active', phase === 'listening' || phase === 'speaking')
           micBtnEl.classList.toggle('is-recording', phase === 'listening')
-          const busy = phase === 'loading' || phase === 'thinking'
+          const busy = phase === 'loading' || phase === 'warming-up' || phase === 'thinking'
           micBtnEl.disabled = busy
           sendBtnEl.disabled = busy
           textInputEl.disabled = busy
           stopBtnEl.hidden = !(phase === 'thinking' || phase === 'speaking')
-          if (phase === 'loading') progressWrapEl.hidden = false
+          if (phase === 'loading' || phase === 'warming-up') progressWrapEl.hidden = false
           else if (phase !== 'error') progressWrapEl.hidden = true
           if (phase !== 'thinking' && typingEl) {
             typingEl.remove()
@@ -472,6 +472,16 @@ export function mountChatWidget(): void {
   function closePanel(): void {
     panelEl.hidden = true
     bubbleEl.setAttribute('aria-expanded', 'false')
+
+    engine?.stop()
+    currentReplyEl = null
+    if (typingEl) {
+      typingEl.remove()
+      typingEl = null
+    }
+    textInputEl.value = ''
+    hasMessages = false
+    logEl.innerHTML = '<p class="cw-empty">ask something like "what is sanyam working on right now?"</p>'
   }
 
   bubbleEl.addEventListener('click', () => {
