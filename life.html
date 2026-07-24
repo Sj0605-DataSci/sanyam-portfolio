@@ -95,6 +95,25 @@
   </div>
 </nav>
 
+<div class="polaroid-rail">
+
+<!-- Polaroid pins: decorative, shown only when there's real margin beside the
+     centered column (see .polaroid media query in styles.css). Right side
+     only, positioned relative to the column edge so they scroll with the
+     page. Swap the src on each <img> with a real photo in
+     /public/images/polaroids/ — the frame, rotation, and pin styling need
+     no changes. -->
+<div class="polaroid" style="top: 180px; left: calc(50% + 410px); transform: rotate(-5deg);">
+  <div class="pin"></div>
+  <img src="/images/polaroids/headshot.png" alt="photo of sanyam" width="150" height="150">
+  <p class="caption">just vibing</p>
+</div>
+<div class="polaroid" style="top: 440px; left: calc(50% + 380px); transform: rotate(-4deg);">
+  <div class="pin"></div>
+  <img src="/images/polaroids/workspace.png" alt="sanyam's workspace" width="150" height="150">
+  <p class="caption">hackathon days</p>
+</div>
+
 <div class="page">
   <main class="page-content">
     <div class="container">
@@ -171,6 +190,8 @@
 
     </div>
   </main>
+
+  </div>
 
   <footer class="site-footer">
     <div class="inner">

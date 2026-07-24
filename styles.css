@@ -29,8 +29,12 @@
 
 html { scroll-behavior: smooth; }
 
-body {
+html {
   background: var(--bg);
+}
+
+body {
+  background: transparent;
   color: var(--fg);
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   line-height: 1.6;
@@ -500,6 +504,56 @@ a.project-card { cursor: pointer; }
   width: 100%;
   border: 1px solid var(--border);
   background: white;
+}
+
+/* ── polaroid pins (margin decoration on wide screens) ── */
+/* Wraps the whole page; polaroids are absolutely positioned within it so
+   they scroll with the page content instead of staying fixed to the
+   viewport. Sits only in the right margin, never over the centered column. */
+.polaroid-rail {
+  position: relative;
+}
+
+.polaroid {
+  position: absolute;
+  width: 150px;
+  background: #fff;
+  padding: 10px 10px 32px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.18), 0 2px 6px rgba(0,0,0,0.12);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.polaroid img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  background: #ddd;
+}
+
+.polaroid .caption {
+  position: absolute;
+  left: 10px; right: 10px; bottom: 8px;
+  font-family: "Comic Sans MS", "Segoe Print", cursive;
+  font-size: 12px;
+  color: #333;
+  text-align: center;
+}
+
+.polaroid .pin {
+  position: absolute;
+  top: -8px; left: 50%;
+  transform: translateX(-50%);
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ff6b6b, #c62828);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.35);
+}
+
+/* Only shown once there's real margin beside the centered 680px column. */
+@media (max-width: 1100px) {
+  .polaroid { display: none; }
 }
 
 /* ── responsive ── */

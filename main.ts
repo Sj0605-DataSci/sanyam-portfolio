@@ -1,6 +1,7 @@
 import { prepare, layout, prepareWithSegments, layoutWithLines } from '@chenglou/pretext'
 import { inject } from '@vercel/analytics'
 import { mountChatWidget } from './chat-widget'
+import { mountDotGrid } from './dot-grid'
 
 inject()
 
@@ -176,4 +177,5 @@ document.addEventListener('DOMContentLoaded', () => {
   initPretextDemo()
   checkBlogExcerpts()
   mountChatWidget()
+  mountDotGrid()
 })
