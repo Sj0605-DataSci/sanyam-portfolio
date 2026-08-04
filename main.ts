@@ -1,9 +1,10 @@
 import { prepare, layout, prepareWithSegments, layoutWithLines } from '@chenglou/pretext'
 import { inject } from '@vercel/analytics'
 import { mountChatWidget } from './chat-widget'
-import { mountDotGrid } from './dot-grid'
+import { mountAiLinks } from './ai-links'
 
 inject()
+mountAiLinks()
 
 // ── pretext canvas demo ───────────────────────────────────────────────────────
 // Renders a paragraph onto a <canvas> using pretext for text measurement.
@@ -177,5 +178,4 @@ document.addEventListener('DOMContentLoaded', () => {
   initPretextDemo()
   checkBlogExcerpts()
   mountChatWidget()
-  mountDotGrid()
 })
