@@ -28,6 +28,13 @@
   }
 
   .more-writing a:hover { border-color: var(--fg); }
+
+  .writing-section + .writing-section { margin-top: 56px; }
+  .writing-section .section-label { margin-bottom: 8px; }
+
+  .blog-links { display: flex; gap: 12px; flex-shrink: 0; }
+  .blog-links a { font-size: 12px; color: var(--muted); text-decoration: none; white-space: nowrap; }
+  .blog-links a:hover { color: var(--fg); text-decoration: underline; text-underline-offset: 3px; }
 </style>
 </head>
 <body>
@@ -59,7 +66,9 @@
         <p>notes on ai, engineering, and building things.</p>
       </div>
 
-      <div class="blog-list">
+      <section class="writing-section" id="publications">
+        <p class="section-label">publications</p>
+        <div class="blog-list">
 
         <a class="blog-item" href="https://openreview.net/forum?id=YD3qxZMJrT" target="_blank" rel="noopener">
           <div class="blog-left">
@@ -69,6 +78,24 @@
           <span class="blog-date">openreview ↗</span>
         </a>
 
+        </div>
+      </section>
+
+      <section class="writing-section" id="blogs">
+        <p class="section-label">blogs</p>
+        <div class="blog-list">
+
+        <div class="blog-item">
+          <div class="blog-left">
+            <a href="https://x.com/Sanyam0605/status/2107434922285948982?s=20" target="_blank" rel="noopener" style="color:inherit;text-decoration:none"><p class="blog-title">which backbone, readout and calibration for system-1 decision models?</p></a>
+            <p class="blog-excerpt">a common-ground benchmark of 50 model configurations on 22 zero-shot datasets — decision heads on llm backbones lead, joint choice readout beats per-option scoring, scale stops paying once the head is trained, and "zero-shot" nli leaderboards look contaminated.</p>
+          </div>
+          <span class="blog-links">
+            <a href="https://x.com/Sanyam0605/status/2107434922285948982?s=20" target="_blank" rel="noopener">twitter ↗</a>
+            <a href="https://lnkd.in/p/gNk86GqB" target="_blank" rel="noopener">linkedin ↗</a>
+          </span>
+        </div>
+
         <a class="blog-item" href="https://x.com/Sanyam0605/status/2078962202737103203" target="_blank" rel="noopener">
           <div class="blog-left">
             <p class="blog-title">world models and how they work and their lineage</p>
@@ -76,7 +103,6 @@
           </div>
           <span class="blog-date">twitter ↗</span>
         </a>
-
         <a class="blog-item" href="https://arxiv.org/abs/2605.27072v1" target="_blank" rel="noopener">
           <div class="blog-left">
             <p class="blog-title">e3: issue-level backtesting for automated research critique</p>
@@ -84,7 +110,6 @@
           </div>
           <span class="blog-date">arxiv ↗</span>
         </a>
-
         <a class="blog-item" href="https://x.com/Sanyam0605/status/2035433436471767484" target="_blank" rel="noopener">
           <div class="blog-left">
             <p class="blog-title">agentic search — how we built it at discoverminds.ai</p>
@@ -92,7 +117,6 @@
           </div>
           <span class="blog-date">twitter ↗</span>
         </a>
-
         <a class="blog-item" href="https://www.linkedin.com/posts/sanyamjain2002_nptel-iit-upskilling-activity-7214213297665925120-bH6O" target="_blank" rel="noopener">
           <div class="blog-left">
             <p class="blog-title">resources for classical ml, dl & genai</p>
@@ -101,7 +125,8 @@
           <span class="blog-date">linkedin ↗</span>
         </a>
 
-      </div>
+        </div>
+      </section>
 
       <p class="more-writing">
         more coming soon — some threads on <a href="https://x.com/Sanyam0605" target="_blank" rel="noopener">twitter</a>
