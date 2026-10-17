@@ -169,6 +169,18 @@
     display: block;
   }
 
+  .gh-graph { overflow-x: auto; padding-bottom: 4px; }
+  .gh-months { display: grid; grid-auto-flow: column; grid-auto-columns: 10px; gap: 2px; font-size: 11px; color: var(--muted); height: 16px; margin-bottom: 2px; }
+  .gh-months span { white-space: nowrap; overflow: visible; }
+  .gh-grid { display: grid; grid-template-rows: repeat(7, 10px); grid-auto-flow: column; grid-auto-columns: 10px; gap: 2px; }
+  .gh-grid i { border-radius: 2px; background: var(--gh0, #ebedf0); }
+  .gh-grid i[data-l="1"] { background: #9be9a8; }
+  .gh-grid i[data-l="2"] { background: #40c463; }
+  .gh-grid i[data-l="3"] { background: #30a14e; }
+  .gh-grid i[data-l="4"] { background: #216e39; }
+  :root[data-theme="dark"] { --gh0: #232323; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --gh0: #232323; } }
+
   .hero-graphic .graphic-caption {
     display: block;
     font-size: 13px;
@@ -272,7 +284,31 @@
       </div>
 
       <div class="hero-graphic">
-        <img src="https://ghchart.rshah.org/39d353/Sj0605-DataSci" alt="github contribution graph for Sj0605-DataSci" loading="lazy">
+        <div id="gh-graph" class="gh-graph" aria-label="github contribution graph for Sj0605-DataSci"></div>
+        <script>
+        (function () {
+          var el = document.getElementById('gh-graph');
+          var fallback = function () {
+            el.innerHTML = '<img src="https://ghchart.rshah.org/39d353/Sj0605-DataSci" alt="github contribution graph for Sj0605-DataSci" style="width:100%;height:auto;display:block">';
+          };
+          fetch('https://github-contributions-api.jogruber.de/v4/Sj0605-DataSci?y=last')
+            .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+            .then(function (d) {
+              var days = d.contributions, first = new Date(days[0].date + 'T00:00:00').getDay();
+              var mn = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+              var months = '', grid = '', last = -1;
+              for (var p = 0; p < first; p++) grid += '<i style="visibility:hidden"></i>';
+              days.forEach(function (x, i) {
+                var col = Math.floor((i + first) / 7), m = new Date(x.date + 'T00:00:00').getMonth();
+                if (m !== last) { months += '<span style="grid-column:' + (col + 1) + '">' + mn[m] + '</span>'; last = m; }
+                grid += '<i data-l="' + x.level + '" title="' + x.count + ' contributions on ' + x.date + '"></i>';
+              });
+              el.innerHTML = '<div class="gh-months">' + months + '</div><div class="gh-grid">' + grid + '</div>';
+              el.scrollLeft = el.scrollWidth;
+            })
+            .catch(fallback);
+        })();
+        </script>
         <span class="graphic-caption">
           github contributions, last 12 months — most of this is claude code and chatgpt pushing
           commits alongside me, not just me typing alone.
