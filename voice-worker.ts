@@ -25,7 +25,7 @@ const BROAD_QUESTION_PATTERNS = [
 ]
 
 const OVERVIEW =
-  "Sanyam is an AI-ML Engineer, Researcher, and Backend Engineer based in Delhi, India. He's currently a Research Assistant / Project Scientist at IIT Delhi DAIR, working on world models and action-guided diffusion models, and he co-founded Noteweave and Discoverminds.ai. Ask me about his work, projects, education, or background for more."
+  "Sanyam is an AI-ML Engineer, Researcher, and Backend Engineer based in Delhi, India. He's currently working on GenAI at Zomato (District); until Oct 2026 he was a Research Assistant / Project Scientist at IIT Delhi DAIR, working on world models and action-guided diffusion models. He co-founded Noteweave and Discoverminds.ai. Ask me about his work, projects, education, or background for more."
 
 function isBroadQuestion(question: string): boolean {
   const trimmed = question.trim()

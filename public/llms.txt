@@ -7,7 +7,7 @@ name: Sanyam Jain
 role: AI-ML Engineer, Researcher, Backend Engineer
 location: Delhi, India
 email: sanyam0605@gmail.com
-status: Research Assistant / Project Scientist at IIT Delhi DAIR. Always looking to work at startups in frontier and deep tech (robotics, or startups building their own models — e.g. Sarvam, Smallest, if in India).
+status: GenAI at Zomato (District), since Oct 12, 2026. Always looking to work at startups in frontier and deep tech (robotics, or startups building their own models — e.g. Sarvam, Smallest, if in India).
 
 ## links
 github: https://github.com/Sj0605-DataSci
@@ -20,7 +20,11 @@ huggingface: https://huggingface.co/Sanyam0605
 leetcode: https://leetcode.com/u/Sj0605-DataSci/
 
 ## current
-- Research Assistant / Project Scientist, IIT Delhi DAIR (Nov 2025–present)
+- GenAI, Zomato (District) (Oct 12, 2026–present)
+  Work in progress.
+
+## previous
+- Research Assistant / Project Scientist, IIT Delhi DAIR (Nov 2025–Oct 7, 2026)
   Advised by Dr Parag Singla (https://www.cse.iitd.ac.in/~parags/) and Dr Rohan Paul (https://www.cse.iitd.ac.in/~rohanpaul/index.html)
   Topic: Text2Games. Building text2game pipeline for educational conditions. Benchmarking Gemini series (2, 2.5, 3) and open-source diffusion models. RL (RMDP, MDP) guidance. Nowadays working on world models and action-guided diffusion models. Reading vision-action and RL papers.
   Stack: LangGraph, Redis, HuggingFace, PyRDDL gym, FastAPI
